@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from random import randint
-
+import asyncio
 
 app = FastAPI()
 
@@ -11,18 +11,17 @@ quotes = {
     2: "Something, Something, Something",
 }
 
-instructions = '''
-<h1>
-Get quotes from Hitchhiker's Guide To The Galaxy
-</h1>
 
-For API Documentation - <a href="/docs/"> Swagger Docs </a>
-'''
+async def read_file(path: str):
+    with open(f'static/{path}') as f:
+        return f.read()
 
 
 @app.get("/", response_class=HTMLResponse)
-def home():
-    return instructions
+async def home():
+    tasks = [read_file('home.html')]
+    result = await asyncio.gather(*tasks)
+    return result[0]
 
 
 def random_quote():
